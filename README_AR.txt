@@ -1,35 +1,50 @@
-COMFORT Série 300 — النشر والتحديث ونظام Extensions
+نظام Extensions — COMFORT Série 300
 
-أولاً: نشر التطبيق
-1) أنشئ مستودعاً عاماً في GitHub وارفع جميع محتويات مجلد site إلى جذر المستودع.
-2) في GitHub افتح Settings ثم Pages.
-3) اختر Deploy from a branch، ثم main و / (root)، ثم Save.
-4) افتح رابط github.io الناتج. التطبيق يعمل دون إنترنت بعد أول زيارة ناجحة وتحميل الملفات.
-5) عند تحديث ملفات التطبيق، ارفع النسخة الجديدة. تم رفع رقم ذاكرة Service Worker في sw.js لهذه النسخة.
+إنشاء إضافة ZIP:
+1) ضع manifest.json وملف index.html في جذر ZIP مباشرة (لا تضعهما داخل مجلد فرعي).
+2) manifest.json مثال:
+{
+  "id": "com.example.myextension",
+  "name": "اسم الإضافة",
+  "version": "1.0.0",
+  "description": "وصف مختصر",
+  "entry": "index.html"
+}
+3) استورد ZIP من Menu > Extensions.
 
-ثانياً: Extensions
-- من Menu > Extensions يمكنك استيراد إضافة ZIP، فتح الإضافات المثبتة أو تعطيلها أو حذفها.
-- الإضافات تحفظ في IndexedDB على الجهاز وتعمل دون إنترنت بعد تثبيتها.
-- المتجر يقرأ site/extensions/registry.json ويمكن تغيير الرابط من داخل مدير الإضافات.
-- عند الاتصال بالإنترنت وفتح مدير الإضافات يتم فحص المتجر. يمكن التثبيت أو التحديث يدوياً.
-- التحديث التلقائي للإضافات المثبتة يعمل عندما يختلف الإصدار ويحتوي عنصر المتجر على قيمة sha256 صحيحة. دون sha256 يبقى التحديث يدوياً.
-- يوجد نموذج ZIP تجريبي في extensions/hello-extension.zip.
-- طريقة بناء ZIP وصيغة registry.json موضحة في extensions/README_AR.txt.
+فهرس المتجر registry.json:
+{
+  "version": 1,
+  "extensions": [
+    {
+      "id": "com.example.myextension",
+      "name": "اسم الإضافة",
+      "version": "1.0.0",
+      "description": "وصف مختصر",
+      "zipUrl": "./myextension.zip",
+      "sha256": "اختياري: بصمة SHA-256 للملف ZIP"
+    }
+  ]
+}
 
-بنية ZIP المطلوبة: manifest.json وملف entry (افتراضياً index.html) في جذر ZIP مباشرة.
-مثال manifest:
-{"id":"com.example.addon","name":"اسم الإضافة","version":"1.0.0","description":"وصف","entry":"index.html"}
+انشر registry.json وملفات ZIP في GitHub Pages. افتح Extensions واضغط تحديث المتجر.
+الإضافات المثبتة تحفظ محلياً في IndexedDB وتبقى متاحة دون إنترنت.
 
-الأمان: الإضافة تعمل داخل iframe معزول، ولا يُسمح لها بالوصول إلى localStorage أو IndexedDB الخاص بالتطبيق أو الاتصال بالشبكة من داخل مساحة الإضافة. استورد ملفات من مصادر موثوقة فقط.
+الأمان: الإضافات تعمل داخل iframe معزول وبصلاحيات محدودة، ولا يمكنها قراءة بيانات التطبيق الأساسية أو التخزين المحلي الخاص به. استخدم إضافات من مصادر موثوقة فقط.
 
-ثالثاً: تطبيق Android
-- افتح مجلد android في Android Studio.
-- في android/app/src/main/java/com/comfort/serie300/MainActivity.java استبدل APP_URL برابط GitHub Pages الحقيقي، مع / في النهاية.
-- File > Sync Project with Gradle Files ثم Build > Build APK(s).
-- دعم اختيار ملفات ZIP مضاف إلى WebView.
+حساب بصمة SHA-256 على Windows PowerShell:
+(Get-FileHash .\myextension.zip -Algorithm SHA256).Hash.ToLower()
+ضع الناتج في الحقل sha256 داخل registry.json لتفعيل التحديث التلقائي الموثق.
 
-مهم:
-- يجب تشغيل الموقع عبر HTTPS لكي يعمل Service Worker وميزة Offline.
-- ملفات الإضافات يتم تحديثها مستقلاً عن APK.
-- تحديث محتوى GitHub Pages لا يحدّث APK نفسه؛ تحديث APK يحتاج إعادة بناء وتوزيعه وتأكيد تثبيته من Android.
-- بيانات التطبيق والإضافات محلية على كل جهاز ولا تتم مزامنتها تلقائياً بين الأجهزة.
+
+إضافة مميزة مرفقة:
+- SmartCut — مساعد القص الذكي: extensions/smartcut-extension.zip
+- تحسب توزيع أطوال قطاعات الألمنيوم على القضبان، الهدر، ونسبة الاستغلال والتكلفة.
+- متاحة في المتجر عبر registry.json، وتعمل دون إنترنت بعد التثبيت.
+
+
+إضافة PanelCut — حاسبة ألواح الخشب والفورميكا والزجاج:
+- الملف: extensions/panelcut-extension.zip (ومتاحة في المتجر عبر registry.json).
+- وحدات mm / cm / m مع تحويل تلقائي دون تغيير المقاسات الفعلية، جدول قطع تفاعلي، مخطط قص لكل لوح، هدر وتكلفة لكل مادة، وتصدير PDF.
+- حفظ PDF وحفظ بيانات المشروع يتطلبان نسخة مدير الإضافات المحدّثة (جسر comfort:save / comfort:state) الموجودة في هذه الحزمة.
+- في Android: يُحفظ PDF في Downloads/COMFORT (Android 10 فما فوق)، أو في مجلد التنزيلات الخاص بالتطبيق في الإصدارات الأقدم.
